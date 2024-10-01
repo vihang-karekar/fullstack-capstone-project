@@ -7,6 +7,7 @@ import Navbar from './components/Navbar/Navbar';
 import RegisterPage from './components/RegisterPage/RegisterPage';
 import LoginPage from './components/LoginPage/LoginPage';
 import SearchPage from './components/SearchPage/SearchPage';
+import DetailsPage from './components/DetailsPage/DetailsPage';
 
 function App() {
 const navigate = useNavigate();
@@ -20,6 +21,7 @@ const navigate = useNavigate();
           <Route path="/app/login" element={<LoginPage/>} />
           <Route path="/app/register" element={<RegisterPage />} />
           <Route path="/app/search" element={<SearchPage />} />
+          <Route path="/app/product/:productId" element={<DetailsPage/>} />
         </Routes>
         </>
   );
