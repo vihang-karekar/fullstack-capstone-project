@@ -9,7 +9,6 @@ function LoginPage() {
 
     // insert code here to create handleLogin function and include console.log
     const handleLogin = async () => {
-        e.preventDefault();
         console.log("login invoked")
     }
         return (
