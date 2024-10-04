@@ -3,11 +3,13 @@ const express = require('express');
 const app = express();
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+//Task 1: Use the `body`,`validationResult` from `express-validator` for input validation
 const { body, validationResult } = require('express-validator');
 const connectToDatabase = require('../models/db');
 const router = express.Router();
 const dotenv = require('dotenv');
 const pino = require('pino');  // Import Pino logger
+
 
 //Step 1 - Task 3: Create a Pino logger instance
 const logger = pino();  // Create a Pino logger instance
@@ -56,7 +58,8 @@ router.post('/register', async (req, res) => {
         const authtoken = jwt.sign(payload, JWT_SECRET);
         logger.info('User registered successfully');
         res.json({authtoken,email});
-    } catch (e) {
+    } catch (error) {
+        logger.error(error);
          return res.status(500).send('Internal server error');
     }
 });
@@ -90,7 +93,8 @@ router.post('/login', async (req, res) => {
                     id: theUser._id.toString(),
                 },
             };
-            jwt.sign(payload, JWT_SECRET)
+            const authtoken = jwt.sign(payload, JWT_SECRET)
+            logger.info('User logged in successfully');
             res.json({authtoken, userName, userEmail });         
         } else {
             // Task 7: Send appropriate message if user not found
@@ -98,8 +102,58 @@ router.post('/login', async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         
-    } catch (e) {
+    } catch (error) {
+        logger.error(error);
          return res.status(500).send('Internal server error');
+
+    }
+});
+
+router.put('/update', async (req, res) => {
+    // Task 2: Validate the input using `validationResult` and return approiate message if there is an error.
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        logger.error('Validation errors in update request', errors.array());
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        // Task 3: Check if `email` is present in the header and throw an appropriate error message if not present.
+        const email = req.headers.email;
+
+        if (!email) {
+            logger.error('Email not found in the request headers');
+            return res.status(400).json({ error: "Email not found in the request headers" });
+        }
+        // Task 4: Connect to MongoDB
+        const db = await connectToDatabase();
+        const collection = db.collection("gifts");
+
+        // Task 5: find user credentials in database
+        const existingUser = await collection.findOne({ email: email });
+
+        existingUser.firstName = req.body.name;
+        existingUser.updatedAt = new Date();
+
+        // Task 6: update user credentials in database
+        const updatedUser = await collection.findOneAndUpdate(
+            { email },
+            { $set: existingUser },
+            { returnDocument: 'after' }
+        );
+
+        // Task 7: create JWT authentication using secret key from .env file
+        let payload = {
+            user: {
+                id: updatedUser._id.toString(),
+            },
+        };
+        const authtoken = jwt.sign(payload, JWT_SECRET)
+        logger.info('User updated successfully');
+        res.json({authtoken});
+    } catch (error) {
+        logger.error(error);
+        return res.status(500).send('Internal server error');
 
     }
 });
