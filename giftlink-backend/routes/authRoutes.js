@@ -22,7 +22,7 @@ dotenv.config();
 const JWT_SECRET = process.env.JWT_SECRET;
 
 router.post('/register', async (req, res) => {
-    console.log("\n\n Inside register")
+    console.log("\n\n Inside register");
     try {
         // Task 1: Connect to `giftsdb` in MongoDB through `connectToDatabase` in `db.js`
          const db = await connectToDatabase();
@@ -67,7 +67,7 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-    console.log("\n\n Inside login")
+    console.log("\n\n Inside login");
     try {
         // Task 1: Connect to `giftsdb` in MongoDB through `connectToDatabase` in `db.js`.
         const db = await connectToDatabase();
@@ -80,7 +80,7 @@ router.post('/login', async (req, res) => {
         
         // Task 4: Task 4: Check if the password matches the encrypyted password and send appropriate message on mismatch
         if (theUser) {
-            let result = await bcryptjs.compare(req.body.password, theUser.password)
+            let result = await bcryptjs.compare(req.body.password, theUser.password);
           if(!result) {
                 logger.error('Passwords do not match');
                 return res.status(404).json({ error: 'Wrong pasword' });
@@ -95,7 +95,7 @@ router.post('/login', async (req, res) => {
                     id: theUser._id.toString(),
                 },
             };
-            const authtoken = jwt.sign(payload, JWT_SECRET)
+            const authtoken = jwt.sign(payload, JWT_SECRET);
             logger.info('User logged in successfully');
             res.json({authtoken, userName, userEmail });         
         } else {
@@ -150,7 +150,7 @@ router.put('/update', async (req, res) => {
                 id: updatedUser._id.toString(),
             },
         };
-        const authtoken = jwt.sign(payload, JWT_SECRET)
+        const authtoken = jwt.sign(payload, JWT_SECRET);
         logger.info('User updated successfully');
         res.json({authtoken});
     } catch (error) {
